@@ -2,7 +2,7 @@ defmodule Petfinder.Auth do
 
   use GenServer
 
-  alias Petfinder.{Auth, Helpers}
+  alias Petfinder.Helpers
 
   defstruct(
     token_type: nil,
@@ -16,7 +16,7 @@ defmodule Petfinder.Auth do
 
   ### API functions ###
 
-  def start_link(opts) do
+  def start_link(_opts) do
     GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
@@ -35,12 +35,12 @@ defmodule Petfinder.Auth do
     {:reply, Map.get(state, "access_token"), state}
   end
 
-  def handle_info(:login, state) do
-    state = login()
-    expires_in = Map.get(state, "expires_in")
+  def handle_info(:login, _state) do
+    new_state = login()
+    expires_in = Map.get(new_state, "expires_in")
     # Schedule refresh for halfway through the expiration (divide seconds by 2 and multiply by 1000 because Process.send_after expect ms)
     schedule_login(div(expires_in, 2) * 1000)
-    {:noreply, state}
+    {:noreply, new_state}
   end
 
   ### Helpers
@@ -49,25 +49,21 @@ defmodule Petfinder.Auth do
   end
 
   def login() do
-    url = "#{@base_url}/v2/oauth2/token"
 
     body = %{
       "grant_type" => "client_credentials",
       "client_id" => @client_id,
       "client_secret" => @client_secret,
     }
-    
-    request_body = URI.encode_query(body)
-    
-    request = Helpers.generate_request(:post, url, request_body)
 
-    Helpers.generate_request(:post, url, request_body)
+    request_body = URI.encode_query(body)
+
+    "#{@base_url}/v2/oauth2/token"
+    |> Helpers.generate_request(:post, request_body)
     |> HTTPoison.request()
     |> Helpers.handle_http_response()
     |> Petfinder.Auth.get_map
   end
 
-  def get_map({:ok, auth_response}) do
-    %{"token_type" => token_type, "expires_in" => expires_in, "access_token" => access_token} = auth_response
-  end
+  def get_map({:ok, auth_response}), do: auth_response
 end
