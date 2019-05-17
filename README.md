@@ -1,4 +1,6 @@
-# Petfinder
+# Petfinder API Client Libary
+
+## This client library is not officially supported and is not guaranteed to be maintained by Nestle Purina Petcare Company.
 
 **Petfinder.com API client for Elixir**
 
@@ -21,12 +23,10 @@ extra_applications: [:logger, :runtime_tools, :petfinder]
 ```
 
 ## Configuration
-```elixir
-config :petfinder,
-    oauth_client: System.get_env("PETFINDER_CLIENT_ID") || "${PETFINDER_CLIENT_ID}",
-    oauth_secret: System.get_env("PETFINDER_CLIENT_SECRET") || "${PETFINDER_CLIENT_SECRET}",
-    base_url: "https://api.petfinder.com",
-    httpoison: [ssl: [{:versions, [:"tlsv1.2"]}]]
+Set your client credentials in the following environment variables:
+```
+PETFINDER_CLIENT_ID
+PETFINDER_CLIENT_SECRET
 ```
 
 ## Usage
