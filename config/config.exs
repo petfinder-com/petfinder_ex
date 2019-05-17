@@ -31,4 +31,5 @@ use Mix.Config
 config :petfinder,
     oauth_client: System.get_env("PETFINDER_CLIENT_ID") || "${PETFINDER_CLIENT_ID}",
     oauth_secret: System.get_env("PETFINDER_CLIENT_SECRET") || "${PETFINDER_CLIENT_SECRET}",
-    base_url: "https://api.petfinder.com"
+    base_url: "https://api.petfinder.com",
+    httpoison: [ssl: [{:versions, [:"tlsv1.2"]}]]
