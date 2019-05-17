@@ -5,7 +5,7 @@ defmodule Petfinder.Helpers do
 
   def generate_request(method, url, params, token, headers \\ [] ) do
 
-    
+
     request = %HTTPoison.Request{
       method: method,
       url: url,
