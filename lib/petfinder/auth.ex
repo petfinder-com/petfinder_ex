@@ -2,7 +2,7 @@ defmodule Petfinder.Auth do
 
   use GenServer
 
-  alias Petfinder.Auth
+  alias Petfinder.{Auth, Helpers}
 
   defstruct(
     token_type: nil,
@@ -44,7 +44,6 @@ defmodule Petfinder.Auth do
   end
 
   ### Helpers
-
   def schedule_login(interval) do
     Process.send_after(self(), :login, interval)
   end
@@ -57,29 +56,18 @@ defmodule Petfinder.Auth do
       "client_id" => @client_id,
       "client_secret" => @client_secret,
     }
+    
     request_body = URI.encode_query(body)
+    
+    request = Helpers.generate_request(:post, url, request_body)
 
-    request = %HTTPoison.Request{
-      method: :post,
-      url: url,
-      options: [hackney: [:insecure]],
-      body: request_body,
-      headers: [{"content-type", "application/x-www-form-urlencoded"}]
-    }
-
-    case HTTPoison.request(request) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}}  ->
-
-        %{"token_type" => token_type, "expires_in" => expires_in, "access_token" => access_token} = Poison.decode!(body)
-        #access_token
-
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        IO.puts "Not found :("
-
-      {:error, %HTTPoison.Error{reason: reason}} ->
-        IO.inspect reason
-    end
+    Helpers.generate_request(:post, url, request_body)
+    |> HTTPoison.request()
+    |> Helpers.handle_http_response()
+    |> Petfinder.Auth.get_map
   end
 
-
+  def get_map({:ok, auth_response}) do
+    %{"token_type" => token_type, "expires_in" => expires_in, "access_token" => access_token} = auth_response
+  end
 end
