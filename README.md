@@ -23,10 +23,12 @@ extra_applications: [:logger, :runtime_tools, :petfinder]
 ```
 
 ## Configuration
-Set your client credentials in the following environment variables:
+`base_url` is optional. It will default to https://api.petfinder.com
 ```
-PETFINDER_CLIENT_ID
-PETFINDER_CLIENT_SECRET
+config :petfinder,
+  oauth_client: <client_id_here>,
+  oauth_secret: <client_secret_here>,
+  base_url: "https://api.petfinder.com"
 ```
 
 ## Usage
