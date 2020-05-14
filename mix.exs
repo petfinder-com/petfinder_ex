@@ -7,7 +7,8 @@ defmodule Petfinder.MixProject do
       version: "0.1.1",
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      package: package()
     ]
   end
 
@@ -23,7 +24,19 @@ defmodule Petfinder.MixProject do
   defp deps do
     [
       {:httpoison, "~> 1.5"},
-      {:poison, "4.0.0"}
+      {:poison, "4.0.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev, runtime: false}
+    ]
+  end
+
+  defp package do
+    [
+      name: :petfinder,
+      description: "API client for the petfinder.com 2.0 REST API",
+      licenses: ["BSD 3-Clause"],
+      links: %{
+        "GitHub" => "https://github.com/petfinder-com/petfinder_ex"
+      }
     ]
   end
 end
