@@ -1,5 +1,4 @@
 defmodule Petfinder.Auth do
-
   use GenServer
 
   alias Petfinder.Helpers
@@ -9,10 +8,6 @@ defmodule Petfinder.Auth do
     expires_in: nil,
     access_token: nil
   )
-
-  @base_url Application.fetch_env!(:petfinder, :base_url)
-  @client_id  Application.fetch_env!(:petfinder, :oauth_client)
-  @client_secret Application.fetch_env!(:petfinder, :oauth_secret)
 
   ### API functions ###
 
@@ -38,6 +33,7 @@ defmodule Petfinder.Auth do
   def handle_info(:login, _state) do
     new_state = login()
     expires_in = Map.get(new_state, "expires_in")
+
     # Schedule refresh for halfway through the expiration (divide seconds by 2 and multiply by 1000 because Process.send_after expect ms)
     schedule_login(div(expires_in, 2) * 1000)
     {:noreply, new_state}
@@ -49,21 +45,23 @@ defmodule Petfinder.Auth do
   end
 
   def login() do
-
     body = %{
       "grant_type" => "client_credentials",
-      "client_id" => @client_id,
-      "client_secret" => @client_secret,
+      "client_id" => client_id(),
+      "client_secret" => client_secret()
     }
 
     request_body = URI.encode_query(body)
 
-    "#{@base_url}/v2/oauth2/token"
+    "#{Helpers.base_url()}/v2/oauth2/token"
     |> Helpers.generate_request(:post, request_body)
     |> HTTPoison.request()
     |> Helpers.handle_http_response()
-    |> Petfinder.Auth.get_map
+    |> Petfinder.Auth.get_map()
   end
 
   def get_map({:ok, auth_response}), do: auth_response
+
+  defp client_id(), do: Application.fetch_env!(:petfinder, :oauth_client)
+  defp client_secret(), do: Application.fetch_env!(:petfinder, :oauth_secret)
 end
